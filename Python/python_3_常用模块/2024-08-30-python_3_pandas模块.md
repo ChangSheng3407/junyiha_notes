@@ -170,7 +170,7 @@ print(merged_df)
 df = pd.read_csv('data.csv')
 ```
 
-- **写入 CSV 文件**：使用 `to_csv()` 方法可以将 DataFrame 保存为 CSV 文件。
+- **写入  文件**：使用 `to_csv()` 方法可以将 DataFrame 保存为 CSV 文件。
 
 ```python
 df.to_csv('output.csv', index=False)
