@@ -9,6 +9,11 @@ tag: Tools
 
 + EditorConfig 代码格式化工具 相关基础知识
 
+## EditorConfig C++代码格式化
+
++ 参考资料: 
+  + notes/PDF/C++_EditorConfig_格式设置约定_Microsoft Learn.pdf
+
 ## EditorConfig 是什么
 
 `EditorConfig` 是一种用于定义和维护代码编辑器配置的文件格式和插件。它提供了一种跨不同编辑器和开发团队的一致性配置方式，以确保代码在不同环境中保持一致的格式化和样式。
