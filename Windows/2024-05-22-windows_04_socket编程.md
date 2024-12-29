@@ -5,6 +5,12 @@ layout: post
 title: windows_04_socket编程
 tag: Windows
 ---
+## 摘要
+
+本文介绍了在 Windows 系统下进行 socket 编程的基本方法和常用函数，包括 Winsock 的初始化、套接字的创建、绑定、监听、接受连接、数据传输和清理等操作。还提供了一个简单的 TCP 服务器和客户端示例代码。
+
+<!--more-->
+
 ## 简介
 
 + windows系统下socket网络编程笔记
