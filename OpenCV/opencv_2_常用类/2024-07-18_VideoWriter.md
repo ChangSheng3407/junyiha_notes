@@ -9,6 +9,8 @@ tag: OpenCV
 
 + cv::VideoWrite类相关笔记
 
+<!--more-->
+
 ## OpenCV cv::VideoWriter 是什么
 
 `cv::VideoWriter` 是 OpenCV 库中的一个类，用于视频文件的创建和写入。它允许你从图像序列中生成视频文件或从摄像头流中录制视频。该类提供了各种方法来设置视频的编码格式、帧率、帧大小等参数。

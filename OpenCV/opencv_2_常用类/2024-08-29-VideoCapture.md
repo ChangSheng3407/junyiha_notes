@@ -9,6 +9,8 @@ tag: OpenCV
 
 + OpenCV中 VideoCapture类学习笔记
 
+<!--more-->
+
 ## VideoCapture的功能
 
 + 一个用于从视频文件，图片序列或者相机捕获视频的类
