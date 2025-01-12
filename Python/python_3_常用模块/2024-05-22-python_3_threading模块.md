@@ -9,6 +9,165 @@ tag: Python
 
 + threading模块笔记
 
+## python threading 判断多个线程是否完成
+
+在 Python 中，可以使用 `threading.Thread` 的 `is_alive()` 方法或者 `join()` 方法来判断线程是否完成。
+
+以下是几种判断多个线程是否完成的方法：
+
+---
+
+### **方法 1：使用 `join()` 等待所有线程完成**
+`join()` 会阻塞主线程，直到子线程完成。这是最常见的方式。
+
+```python
+import threading
+import time
+
+def worker(name, delay):
+    time.sleep(delay)
+    print(f"Thread {name} finished.")
+
+# 创建多个线程
+threads = []
+for i in range(5):
+    t = threading.Thread(target=worker, args=(f"Thread-{i}", i))
+    threads.append(t)
+    t.start()
+
+# 等待所有线程完成
+for t in threads:
+    t.join()
+
+print("All threads are complete.")
+```
+
+---
+
+### **方法 2：循环检查 `is_alive()`**
+`is_alive()` 返回线程是否仍在运行。
+
+```python
+import threading
+import time
+
+def worker(name, delay):
+    time.sleep(delay)
+    print(f"Thread {name} finished.")
+
+# 创建多个线程
+threads = []
+for i in range(5):
+    t = threading.Thread(target=worker, args=(f"Thread-{i}", i))
+    threads.append(t)
+    t.start()
+
+# 检查是否所有线程完成
+while any(t.is_alive() for t in threads):
+    print("Waiting for threads to complete...")
+    time.sleep(0.5)
+
+print("All threads are complete.")
+```
+
+---
+
+### **方法 3：使用 `Event` 对象通知主线程**
+通过线程完成时触发 `Event`，主线程等待所有事件被设置。
+
+```python
+import threading
+import time
+
+def worker(name, delay, event):
+    time.sleep(delay)
+    print(f"Thread {name} finished.")
+    event.set()  # 通知主线程
+
+# 创建多个线程和事件
+events = []
+threads = []
+
+for i in range(5):
+    event = threading.Event()
+    events.append(event)
+    t = threading.Thread(target=worker, args=(f"Thread-{i}", i, event))
+    threads.append(t)
+    t.start()
+
+# 等待所有事件完成
+for event in events:
+    event.wait()
+
+print("All threads are complete.")
+```
+
+---
+
+### **选择合适的方法**
+- **简单场景**：使用 `join()` 是最简洁的方式。
+- **动态监控**：使用 `is_alive()` 可实现更灵活的监控。
+- **通知机制**：使用 `Event` 提供更多控制能力。
+
+如果你的场景需要特定的解决方案，请详细描述，我可以进一步优化代码！
+
+## python3 threading库 启动线程函数并传递参数
+
+在 Python 的 `threading` 模块中，可以通过 `Thread` 类启动线程，并使用 `args` 和 `kwargs` 参数向线程函数传递参数。
+
+以下是具体方法和示例：
+
+### 使用 `args` 和 `kwargs` 传递参数
+- **`args`**：用于传递位置参数，以元组形式提供。
+- **`kwargs`**：用于传递关键字参数，以字典形式提供。
+
+### 示例代码
+
+```python
+import threading
+import time
+
+# 定义线程函数
+def worker(name, delay, repeat=5):
+    for i in range(repeat):
+        time.sleep(delay)
+        print(f"Thread {name}: {i+1}")
+
+# 创建线程并传递参数
+thread1 = threading.Thread(target=worker, args=("A", 1), kwargs={"repeat": 3})
+thread2 = threading.Thread(target=worker, args=("B", 2))
+
+# 启动线程
+thread1.start()
+thread2.start()
+
+# 等待线程完成
+thread1.join()
+thread2.join()
+
+print("All threads are complete.")
+```
+
+### 输出示例
+```
+Thread A: 1
+Thread B: 1
+Thread A: 2
+Thread B: 2
+Thread A: 3
+Thread B: 3
+Thread B: 4
+Thread B: 5
+All threads are complete.
+```
+
+### 注意事项
+1. **`args` 和 `kwargs` 必须匹配目标函数的参数要求**。
+2. 使用 `join` 方法可以让主线程等待子线程执行完成。
+3. 启动线程后，不能再调用 `start` 方法，否则会抛出 `RuntimeError`。
+
+如果还有其他需求，随时告诉我！
+
 ## python3 threading 模块 详解
 
 `threading` 模块是 Python 3 中用于多线程编程的标准库模块，它提供了一种方便的方式来创建和管理线程。多线程允许在同一程序中同时执行多个任务，可以提高程序的并发性和性能。以下是有关 `threading` 模块的详细解释和示例：
