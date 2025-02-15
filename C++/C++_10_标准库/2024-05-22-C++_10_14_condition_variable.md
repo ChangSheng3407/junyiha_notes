@@ -464,3 +464,87 @@ int main() {
 ```
 
 在此示例中，`cv.notify_all()` 在工作线程中被调用，它唤醒了所有等待在条件变量 `cv` 上的主线程。所有等待的线程都会从 `cv.wait()` 阻塞状态解除，并尝试重新获取锁以继续执行。`notify_all()` 会唤醒所有线程，让它们竞争锁资源并继续执行。
+
+## C++ <condition_variable> std::condition_variable_any 类 详解
+
+`std::condition_variable_any` 是 C++11 标准库中的一个同步原语，属于 `<condition_variable>` 头文件。它与 `std::condition_variable` 类似，但有所不同，主要在于它不要求条件变量与特定的锁类型（如 `std::mutex` 或 `std::unique_lock<std::mutex>`）绑定，因此更加灵活。
+
+### 1. 基本概念
+`std::condition_variable_any` 是一个条件变量，允许多个线程基于某个共享状态进行等待或通知。与 `std::condition_variable` 不同的是，它的等待操作不依赖于特定的互斥锁类型。它可以与任何类型的锁配合使用，只要该锁能够提供对共享数据的互斥访问。
+
+### 2. `std::condition_variable_any` 和 `std::condition_variable` 的区别
+- `std::condition_variable` 只能与 `std::unique_lock<std::mutex>` 这种特定的锁类型配合使用。
+- `std::condition_variable_any` 可以与任何类型的锁（只要提供互斥性）一起使用，包括 `std::mutex`、`std::shared_mutex`、`std::timed_mutex` 等。
+
+这使得 `std::condition_variable_any` 更加通用，但也要求用户更小心地管理锁的类型和行为。
+
+### 3. 核心成员函数
+
+- **`wait(std::unique_lock<Lock>& lock)`**  
+  使当前线程在条件变量上等待，直到被通知并且 `lock` 被重新获得。`lock` 必须是一个 `std::unique_lock`，并且它的锁类型可以是任何提供互斥的类型。
+
+- **`wait_for(std::unique_lock<Lock>& lock, std::chrono::duration<Rep, Period> const& rel_time)`**  
+  与 `wait` 类似，但是它会在给定的时间段内超时。如果在超时之前没有被通知，线程会自动继续执行。
+
+- **`wait_until(std::unique_lock<Lock>& lock, std::chrono::time_point<Clock, Duration> const& abs_time)`**  
+  等待直到某个特定的时间点，或者直到通知为止。
+
+- **`notify_one()`**  
+  通知一个等待中的线程。如果有多个线程在等待条件变量，只有一个会被唤醒。
+
+- **`notify_all()`**  
+  通知所有等待中的线程。
+
+### 4. 使用示例
+
+```cpp
+#include <iostream>
+#include <thread>
+#include <condition_variable>
+#include <mutex>
+
+std::condition_variable_any cv;
+std::mutex mtx;
+bool ready = false;
+
+void print_id(int id) {
+    std::unique_lock<std::mutex> lck(mtx);
+    while (!ready) {
+        cv.wait(lck);  // Wait until ready is true
+    }
+    std::cout << "Thread " << id << '\n';
+}
+
+void go() {
+    std::unique_lock<std::mutex> lck(mtx);
+    ready = true;
+    cv.notify_all();  // Notify all waiting threads
+}
+
+int main() {
+    std::thread threads[10];
+    
+    // Launch threads
+    for (int i = 0; i < 10; ++i) {
+        threads[i] = std::thread(print_id, i);
+    }
+    
+    std::cout << "Preparing to launch threads...\n";
+    go();  // Notify all threads to proceed
+    
+    for (auto& th : threads) {
+        th.join();
+    }
+
+    return 0;
+}
+```
+
+### 5. `std::condition_variable_any` 的使用场景
+`std::condition_variable_any` 更适用于那些需要灵活选择锁类型的场景。比如，你可能使用 `std::shared_mutex` 来允许多个线程共享读访问，但仍然需要在某些时刻进行写访问控制。在这种情况下，`std::condition_variable_any` 会比 `std::condition_variable` 更适用。
+
+### 6. 注意事项
+- **性能考量**：`std::condition_variable_any` 在某些情况下可能会有更多的性能开销，因为它需要在底层提供更多的灵活性来支持不同类型的锁。
+- **锁的类型匹配**：在使用时，你需要确保传入的锁类型能够正确地支持 `wait`、`wait_for` 和 `wait_until` 等操作。
+
+总结来说，`std::condition_variable_any` 提供了比 `std::condition_variable` 更强的灵活性，但也要求开发者更细致地考虑锁的类型和同步的复杂性。如果你只需要与 `std::mutex` 配合使用，通常使用 `std::condition_variable` 会更加简单和高效。
