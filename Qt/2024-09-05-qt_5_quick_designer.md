@@ -1,5 +1,8 @@
 ---
 title: quick designer
+date: 2024-05-22 09:00:00 +0800
+layout: post
+category: Qt
 ---
 ## 简介
 
